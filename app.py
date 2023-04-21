@@ -95,5 +95,9 @@ if uploadedFile is not None:
             st.dataframe(emoji_df)
         with col2:
             fig,ax = plt.subplots()
-            ax.pie(emoji_df[1].head(),labels=emoji_df[0].head(),autopct="%0.2f")
+            color =  ['#FFC107', '#2196F3', '#4CAF50', '#F44336', '#9C27B0']
+
+            ax.pie(emoji_df['Count'].head(),labels=emoji_df['Emoji'].head(),autopct="%0.2f", colors=color)
+            ax.set_title("Emoji Distribution", color='yellow')
+            fig.set_facecolor('#121212')
             st.pyplot(fig)

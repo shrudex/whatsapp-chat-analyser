@@ -2,6 +2,8 @@ from urlextract import URLExtract
 import pandas as pd
 from collections import Counter
 import emoji
+import re
+import regex
 
 def fetchStats (selectedUser, dataFrame):
     if selectedUser != "Overall":
@@ -54,8 +56,13 @@ def mostEmoji (selectedUser ,x):
         x = x[x['user'] == selectedUser]
     emojis = []
     for message in x['message']:
-        emojis.extend([c for c in message if c in emoji.UNICODE_EMOJI['en']])
+        message_emojized = emoji.emojize(message, language='alias')
+        emojis.extend([c for c in message_emojized if c in emoji.UNICODE_EMOJI['en']])
 
-    emojiDF = pd.DataFrame(Counter(emojis).most_common(len(Counter(emojis))))
+    emoji_counts = Counter(emojis)
+    emoji_df = pd.DataFrame(list(emoji_counts.items()), columns=['Emoji', 'Count'])
+    emoji_df['Emoji'] = emoji_df['Emoji'].apply(lambda x: emoji.emojize(x, language='alias'))
+    emoji_df = emoji_df.sort_values('Count', ascending=False).reset_index(drop=True)
 
-    return emojiDF
+
+    return emoji_df
