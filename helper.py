@@ -15,7 +15,8 @@ def fetchStats(selectedUser, dataFrame):
 
     word = []
     for message in dataFrame['message']:
-        word.extend(message.split())
+        if isinstance(message, str):
+            word.extend(message.split())
     totalWords = len(word)
 
     totalMedia = dataFrame[dataFrame['message']
@@ -48,9 +49,10 @@ def mostCommon(selectedUser, x):
     words = []
 
     for message in withoutGNMedia['message']:
-        for word in message.lower().split():
-            if word not in stopWords:
-                words.append(word)
+        if isinstance(message, str):
+            for word in message.lower().split():
+                if word not in stopWords:
+                    words.append(word)
 
     mC = Counter(words).most_common(20)
     mostCommon = pd.DataFrame(mC)
@@ -64,9 +66,10 @@ def mostEmoji(selectedUser, x):
         x = x[x['user'] == selectedUser]
     emojis = []
     for message in x['message']:
-        message_emojized = emoji.emojize(message, language='alias')
-        emojis.extend(
-            [c for c in message_emojized if c in emoji.UNICODE_EMOJI['en']])
+        if isinstance(message, str):
+            message_emojized = emoji.emojize(message, language='alias')
+            emojis.extend(
+                [c for c in message_emojized if c in emoji.UNICODE_EMOJI['en']])
 
     emoji_counts = Counter(emojis)
     emoji_df = pd.DataFrame(list(emoji_counts.items()),
