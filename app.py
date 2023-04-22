@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import emoji
 import seaborn as sns
+import plotly.express as px
 
 
 st.set_page_config(page_title="Shrudex", layout="wide")
@@ -69,6 +70,14 @@ if uploadedFile is not None:
         plt.xlabel('Date', color='white')
         plt.ylabel('Message Count', color='white')
         st.pyplot(plt)
+        
+        #activity map
+        st.title("Week Activity")
+        weekActivitySeries, weekActivity = helper.weekActivity (selectedUser, dataFrame)
+        fig = px.pie(weekActivity, values='message', names='dayName', hole=0.6, color_discrete_sequence=px.colors.qualitative.Dark2)
+        fig.update_layout(template='plotly_dark')
+        st.plotly_chart(fig)
+
 
 
         # finding busiest users in the group

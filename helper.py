@@ -87,3 +87,9 @@ def dailyTimeline (selectedUser, x):
     x['onlyDate'] = pd.to_datetime(x['date']).dt.date
     dailyTimeline = x.groupby("onlyDate").count()['message'].reset_index()
     return dailyTimeline
+
+def weekActivity (selectedUser, x):
+    if selectedUser != "Overall":
+        x = x[x['user'] == selectedUser]
+    weekActivity = x.groupby("dayName").count()['message'].reset_index()
+    return x['dayName'].value_counts(), weekActivity
