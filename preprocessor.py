@@ -22,25 +22,42 @@ def preprocess(data):
     
     pattern = '\d{2}\/\d{2}\/\d{2}, \d{1,2}:\d{2}\s(?:am|pm) - '
     regex = r'\d{2}/\d{2}/\d{4}, \d{1,2}:\d{2}\s*[ap]m'
+    regexN = r'\d{1,2}\/\d{1,2}\/\d{2},\s\d{1,2}:\d{2}\s[AP]M'
+
 
     dates1 = re.findall(regex, data)
     dates2 = re.findall(pattern, data)
+    dates3 = re.findall(regexN, data)
+
     regex = r'\d{2}/\d{2}/\d{4}, \d{1,2}:\d{2}\s*[ap]m - '
+    regexN = r'\d{1,2}\/\d{1,2}\/\d{2},\s\d{1,2}:\d{2}\s[AP]M\s-\s'
+
     messages1 = re.split(regex, data)[1:]
     messages2 = re.split(pattern, data)[1:]
-
+    messages3 = re.split(regexN, data)[1:]
+    
+    holdsZero = [0, len(dates1), len(dates2), len(dates3)]
     dates = dates2
     messages = messages2
-    if (len(dates2) == 0):
+    if (holdsZero[1]):
         dates = dates1
         messages = messages1
+    if (holdsZero[3]):
+        dates = dates3
+        messages = messages3
+    dates = [date.replace('\u202f', ' ') for date in dates]
+    
     x = pd.DataFrame({"messages":messages, "date":dates})
     #converting the "date" type
-    if (len(dates1)==0):
-        x["date"] = pd.to_datetime(x['date'], format='%d/%m/%y, %I:%M %p - ')
-        x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
-    else:
+    if (holdsZero[1]):
         x["date"] = pd.to_datetime(x['date'], format="%d/%m/%Y, %I:%M %p")
+        x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    if (holdsZero[3]):
+        x["date"] = pd.to_datetime(x['date'], format='%m/%d/%y, %I:%M %p')
+        x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    if (holdsZero[2]):
+        x["date"] = pd.to_datetime(x['date'], format='%d/%m/%y, %I:%M %p - ')
         x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
     
     # splitting the "messages" column into "user" and "message" columns
