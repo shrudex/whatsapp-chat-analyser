@@ -132,6 +132,27 @@ if uploadedFile is not None:
         ax.set_title('Messages Sent by Hour of the Day', color='white')
         plt.style.use('dark_background')
         st.pyplot(fig)
+        
+        #----
+        st.header("Day-wise Activity🗓️")
+        tabs = st.tabs(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+        #tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        
+        for i, day in enumerate(days):
+            day_data = h2[h2['dayName'] == day]
+            with tabs[i]:
+                fig, axs = plt.subplots(figsize=(12, 3))
+                axs.plot(day_data['hour'], day_data['message'])
+                axs.set_title(day)
+                axs.set_xlabel('Hour of the Day', color='yellow')
+                axs.set_ylabel('Number of Messages', color='yellow')
+                axs.set_xticks(range(0, 24, 2))
+                axs.grid(True, alpha=0.3)
+                plt.tight_layout()
+                st.pyplot(fig)
+       # fig, axs = plt.subplots(7, 3, figsize=(12, 12), sharex=True, sharey=True)
+
 
 
         # finding busiest users in the group
