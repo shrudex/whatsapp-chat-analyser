@@ -135,13 +135,14 @@ if uploadedFile is not None:
         
         #----
         st.header("Day-wise Activity🗓️")
-        tabs = st.tabs(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+        tabs = st.multiselect("Select days to display",['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
         #tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         
-        for i, day in enumerate(days):
+        for day in tabs:
             day_data = h2[h2['dayName'] == day]
-            with tabs[i]:
+            plot_placeholder = st.empty()
+            with plot_placeholder:
                 fig, axs = plt.subplots(figsize=(12, 3))
                 axs.plot(day_data['hour'], day_data['message'])
                 axs.set_title(day)
@@ -151,6 +152,7 @@ if uploadedFile is not None:
                 axs.grid(True, alpha=0.3)
                 plt.tight_layout()
                 st.pyplot(fig)
+
        # fig, axs = plt.subplots(7, 3, figsize=(12, 12), sharex=True, sharey=True)
 
 
