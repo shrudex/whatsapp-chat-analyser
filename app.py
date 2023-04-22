@@ -2,6 +2,7 @@ import streamlit as st
 import preprocessor
 import helper
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import emoji
 import seaborn as sns
 
@@ -17,6 +18,7 @@ if uploadedFile is not None:
     bytesData = uploadedFile.getvalue()
     finalData = bytesData.decode("utf-8")
     dataFrame = preprocessor.preprocess(finalData)
+    st.title("WhatsApp Chat Data")
     st.dataframe(dataFrame.head())
 
     # fetch unique users
@@ -30,7 +32,7 @@ if uploadedFile is not None:
         # statistics
         numMessages, numWords, numMedia, numURL = helper.fetchStats(
             selectedUser, dataFrame)
-
+        st.title("Top Statistics📈")
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
@@ -45,12 +47,35 @@ if uploadedFile is not None:
         with col4:
             st.header("Links Shared🔗")
             st.title(numURL)
+            
+        #monthly timeline
+        st.title("Monthly Timeline⌚")
+        timeline = helper.monthlyTimeline(selectedUser, dataFrame)
+        plt.style.use('dark_background')
+        plt.figure(figsize=(12, 3)) 
+        plt.plot(timeline['time'], timeline['message'])
+        plt.xticks(rotation='vertical')
+        plt.title(f"{selectedUser}", color='yellow')
+        st.pyplot(plt)
+        
+        #daily timeline
+        st.title("Daily Timeline📅")
+        dailyTimeline = helper.dailyTimeline (selectedUser, dataFrame)
+        plt.style.use('dark_background')
+        plt.figure(figsize = (14, 3))
+        plt.plot(dailyTimeline['onlyDate'], dailyTimeline['message'])
+        plt.xticks(rotation='vertical')
+        plt.title('Daily Message Count', color='yellow')
+        plt.xlabel('Date', color='white')
+        plt.ylabel('Message Count', color='white')
+        st.pyplot(plt)
+
 
         # finding busiest users in the group
         if selectedUser == 'Overall':
             st.header("Top Chatters🗣️")
             topChatter, topChatterPercent = helper.mostBusy(dataFrame)
-            col1, col2 = st.columns(2, gap='medium')
+            col1, col2 = st.columns(2)
 
             with col1:
                 plt.style.use('dark_background')
@@ -70,34 +95,37 @@ if uploadedFile is not None:
                 st.dataframe(topChatterPercent)
 
         # most common words
-        st.header("Top Words Used🥇")
-        mostCommon = helper.mostCommon(selectedUser, dataFrame)
         
-        col1, col2 = st.columns(2, gap='medium')
-        with col1:
-            fig, ax = plt.subplots()
-            plt.ylabel('Message').set_color('yellow')
-            plt.xlabel('Frequency').set_color('yellow')
-            ax.barh(mostCommon['Message'], mostCommon['Frequency'])
-            plt.xticks(rotation="vertical")
-            st.pyplot(fig)
+        mostCommon = helper.mostCommon(selectedUser, dataFrame)
+        if (mostCommon.shape[0] != 0):
+            st.header("Top Words Used🥇")
+        
+            col1, col2 = st.columns(2)
+            with col1:
+                fig, ax = plt.subplots()
+                plt.ylabel('Message').set_color('yellow')
+                plt.xlabel('Frequency').set_color('yellow')
+                ax.barh(mostCommon['Message'], mostCommon['Frequency'])
+                plt.xticks(rotation="vertical")
+                st.pyplot(fig)
             
-        with col2:
-            st.dataframe(mostCommon)
+            with col2:
+                st.dataframe(mostCommon)
             
         # emoji analysis
         emoji_df = helper.mostEmoji(selectedUser, dataFrame)
-        st.title("Emoji Analysis😳")
+        if (emoji_df.shape[0]!=0):
+            st.title("Emoji Analysis😳")
 
-        col1,col2 = st.columns(2)
+            col1,col2 = st.columns(2)
 
-        with col1:
-            st.dataframe(emoji_df)
-        with col2:
-            fig,ax = plt.subplots()
-            color =  ['#FFC107', '#2196F3', '#4CAF50', '#F44336', '#9C27B0']
+            with col1:
+                st.dataframe(emoji_df)
+            with col2:
+                fig,ax = plt.subplots()
+                color =  ['#FFC107', '#2196F3', '#4CAF50', '#F44336', '#9C27B0']
 
-            ax.pie(emoji_df['Count'].head(),labels=emoji_df['Emoji'].head(),autopct="%0.2f", colors=color)
-            ax.set_title("Emoji Distribution", color='yellow')
-            fig.set_facecolor('#121212')
-            st.pyplot(fig)
+                ax.pie(emoji_df['Count'].head(),labels=emoji_df['Emoji'].head(),autopct="%0.2f", colors=color)
+                ax.set_title("Emoji Distribution", color='yellow')
+                fig.set_facecolor('#121212')
+                st.pyplot(fig)

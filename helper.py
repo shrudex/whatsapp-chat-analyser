@@ -4,6 +4,9 @@ from collections import Counter
 import emoji
 import re
 import regex
+import streamlit as st
+from datetime import datetime
+
 
 def fetchStats (selectedUser, dataFrame):
     if selectedUser != "Overall":
@@ -66,3 +69,21 @@ def mostEmoji (selectedUser ,x):
 
 
     return emoji_df
+
+def monthlyTimeline (selectedUser, x):
+    if selectedUser != "Overall":
+        x = x[x['user'] == selectedUser]
+    timeline = x.groupby(['year', 'monthNum', 'month']).count()['message'].reset_index()
+    
+    time = []
+    for i in range (timeline.shape[0]):
+        time.append(timeline['month'][i] + "-" + str (timeline['year'][i]))
+    timeline['time'] = time
+    return timeline
+
+def dailyTimeline (selectedUser, x):
+    if selectedUser != "Overall":
+        x = x[x['user'] == selectedUser]
+    x['onlyDate'] = pd.to_datetime(x['date']).dt.date
+    dailyTimeline = x.groupby("onlyDate").count()['message'].reset_index()
+    return dailyTimeline
