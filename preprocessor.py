@@ -59,4 +59,19 @@ def preprocess(data):
     
     x['dayName'] = pd.to_datetime(x['date'], format="%Y-%m-%d %H:%M:%S").dt.day_name()
     x['monthName'] = pd.to_datetime(x['date'], format="%Y-%m-%d %H:%M:%S").dt.month_name()
+    
+    period = []
+    for hour in x[['dayName', 'hour']]['hour']:
+        if hour == 23:
+            period.append(str(hour) + "-" + str('00'))
+        elif hour == 0:
+            period.append(str('00') + "-" + str(hour+1))
+        else:
+            period.append(str(hour) + "-" + str(hour+1))
+    x['period'] = period
+    
+    x['replyTime'] = pd.to_datetime(x['date']).diff().fillna(pd.Timedelta(seconds=0))
+    x = x[x['replyTime'] <= pd.Timedelta(days=2)]
+
+
     return x

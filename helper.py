@@ -139,5 +139,19 @@ def messageExtractor (selectedUser, x, inputDate):
         #st.dataframe(messageExtract)
 
         return messageExtract
+
+def activity (selectedUser, x):
+    if selectedUser != "Overall":
+        x = x[x['user'] == selectedUser]
+    activityX = x.groupby("period").count()['message'].reset_index()
+    return activityX
+
+def replyTime (selectedUser, x):
+    if selectedUser != "Overall":
+        x = x[x['user'] == selectedUser]
+    timeDifference = x.groupby('user')['replyTime'].mean().reset_index().sort_values('replyTime', ascending=True).head(5)
+    timeDifference = timeDifference[timeDifference['user'] != 'default']
     
-    
+    timeSelected = timeDifference[timeDifference['user'] == selectedUser]['replyTime'].iloc[0]
+
+    return timeDifference, timeSelected

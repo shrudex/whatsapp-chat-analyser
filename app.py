@@ -10,8 +10,8 @@ import plotly.express as px
 
 st.set_page_config(page_title="Shrudex", layout="wide")
 
-st.title("WhatsApp Chat Analyzer🔎")
-st.write("Made with❤️‍🔥 by Shrudex!👨🏻‍💻")
+st.title("WhatsChat🔎")
+st.write("*Made with❤️‍🔥 by Shrudex!👨🏻‍💻*")
 
 st.sidebar.title("WhatsApp Chat Analyzer")
 uploadedFile = st.sidebar.file_uploader("Choose a File🗃️")
@@ -19,8 +19,8 @@ if uploadedFile is not None:
     bytesData = uploadedFile.getvalue()
     finalData = bytesData.decode("utf-8")
     dataFrame = preprocessor.preprocess(finalData)
-    st.title("WhatsApp Chat Data")
-    st.dataframe(dataFrame.head())
+    #st.title("WhatsApp Chat Data")
+    #st.dataframe(dataFrame.head())
 
     # fetch unique users
     userList = dataFrame["user"].unique().tolist()
@@ -135,7 +135,7 @@ if uploadedFile is not None:
         
         #----
         st.header("Day-wise Activity🗓️")
-        tabs = st.multiselect("Select days to display",['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
+        tabs = st.multiselect("Select day(s) to display",['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
         #tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
         
@@ -152,8 +152,20 @@ if uploadedFile is not None:
                 axs.grid(True, alpha=0.3)
                 plt.tight_layout()
                 st.pyplot(fig)
-
-       # fig, axs = plt.subplots(7, 3, figsize=(12, 12), sharex=True, sharey=True)
+                
+        #period activity
+        st.header("Activity by Time Period📲")
+        activity = helper.activity(selectedUser, dataFrame)
+        activity = activity.sort_values('message')
+        period = activity['period']
+        messages = activity['message']
+        fig, ax = plt.subplots(figsize=(16, 3))
+        ax.bar(period, messages)
+        ax.set_xlabel('Period', color="yellow")
+        ax.set_ylabel('Number of Messages', color='yellow')
+        ax.set_title('Activity Chart')
+        plt.style.use('dark_background')
+        st.pyplot(fig)
 
 
 
@@ -179,7 +191,31 @@ if uploadedFile is not None:
 
             with col2:
                 st.dataframe(topChatterPercent)
+                
+        #reply time analysis
+        st.header("Reply Time Analysis⏩")
+        timeDifference, timeSelected = helper.replyTime(selectedUser, dataFrame)
+        if (selectedUser!='Overall'):
+            st.write("Average Reply Time by", selectedUser, "is", timeSelected)
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                ax.bar(timeDifference['user'], timeDifference['replyTime'].dt.seconds)
+                ax.set_xlabel('Participant', color='yellow')
+                ax.set_ylabel('Average Reply Time (Seconds)', color='yellow')
+                ax.set_title('')
+                st.pyplot(plt)
+            with col2:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                ax.pie(timeDifference['replyTime'], labels=timeDifference['user'], autopct='%1.1f%%', colors=plt.cm.Dark2.colors)
+                ax.axis('equal')
+                plt.style.use('dark_background')
+                ax.set_title('')
+                st.pyplot(fig)
+        
 
+   
         # most common words
 
         mostCommon = helper.mostCommon(selectedUser, dataFrame)
@@ -225,4 +261,4 @@ if uploadedFile is not None:
             if messageExtract.shape[0]>0:
                 st.dataframe(messageExtract, width=1400)
             else:
-                st.write("No conversation(s) on", inputDate)
+                st.write("No conversation(s) on", inputDate)            
