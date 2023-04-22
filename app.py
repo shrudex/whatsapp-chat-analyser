@@ -29,7 +29,8 @@ if uploadedFile is not None:
     userList.insert(0, "Overall")
     selectedUser = st.sidebar.selectbox("Show Analysis🤔 WRT", userList)
 
-    if st.sidebar.button("Show Analysis🔢"):
+    #if st.sidebar.button("Show Analysis🔢"):
+    if (True):
         # statistics
         numMessages, numWords, numMedia, numURL = helper.fetchStats(
             selectedUser, dataFrame)
@@ -192,3 +193,13 @@ if uploadedFile is not None:
                 ax.set_title("Emoji Distribution", color='yellow')
                 fig.set_facecolor('#121212')
                 st.pyplot(fig)
+        
+        #message extractor
+        st.title("Messages Extractor🪓")
+        inputDate = st.text_input("Enter date in format : 19-08-2003")
+        messageExtract = helper.messageExtractor(selectedUser, dataFrame, inputDate)
+        if st.button("Extract"):
+            if messageExtract.shape[0]>0:
+                st.dataframe(messageExtract, width=1400)
+            else:
+                st.write("No conversation(s) on", inputDate)

@@ -118,3 +118,26 @@ def hourActivity(selectedUser, x):
     if selectedUser != "Overall":
         x = x[x['user'] == selectedUser]
     return x.groupby(['dayName', 'hour'])['message'].count(), x.groupby(['dayName', 'hour'])['message'].count().reset_index()
+
+
+
+def messageExtractor (selectedUser, x, inputDate):
+    #inputDate = "20-04-2023"
+    if selectedUser != "Overall":
+        x = x[x['user'] == selectedUser]
+    if (len(inputDate)==10):
+        dd = inputDate[0:2]
+        mm = inputDate[3:5]
+        yyyy = inputDate[6:]
+        if (dd[0]=='0'): dd = dd[1]
+        if (mm[0]=='0'): mm = mm[1]
+        mask = (x['day'].astype(str) == dd) & (x['monthNum'].astype(str) == mm) & (x['year'].astype(str) == yyyy)
+        messageExtract = pd.DataFrame(x[mask])[['user', 'message']]
+        if (messageExtract.shape[0]>0):
+            messageExtract['time'] = x['hour'].astype(str) + ':' + x['minute'].astype(str)
+            messageExtract['message'] = messageExtract['message'].str.replace('\n', '')
+        #st.dataframe(messageExtract)
+
+        return messageExtract
+    
+    
