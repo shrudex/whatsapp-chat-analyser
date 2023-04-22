@@ -147,11 +147,11 @@ def activity (selectedUser, x):
     return activityX
 
 def replyTime (selectedUser, x):
+    timeSelected = pd.Timedelta(0)
     if selectedUser != "Overall":
         x = x[x['user'] == selectedUser]
+        timeSelected = timeDifference[timeDifference['user'] == selectedUser]['replyTime'].iloc[0]
     timeDifference = x.groupby('user')['replyTime'].mean().reset_index().sort_values('replyTime', ascending=True).head(5)
     timeDifference = timeDifference[timeDifference['user'] != 'default']
-    
-    timeSelected = timeDifference[timeDifference['user'] == selectedUser]['replyTime'].iloc[0]
 
     return timeDifference, timeSelected

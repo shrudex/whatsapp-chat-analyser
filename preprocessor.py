@@ -4,20 +4,45 @@ import streamlit as st
 
 
 def preprocess(data):
+    
     # creating a regex equation that matches the date and time format in the given message
-    pattern = '\d{2}\/\d{2}\/\d{2}, \d{1,2}:\d{2}\s(?:am|pm) - '
+    #pattern = '\d{2}\/\d{2}\/\d{2}, \d{1,2}:\d{2}\s(?:am|pm) - '
     # extracting messages on the basis of 'regex' pattern
-    messages = re.split(pattern, data)[1:]
+    #messages = re.split(pattern, data)[1:]
     # extracting date&time on the basis of 'regex' pattern
-    dates = re.findall(pattern, data)
+    #dates = re.findall(pattern, data)
     # replacing the \u202f character with a space in the dates list
-    dates = [date.replace('\u202f', ' ') for date in dates]
+    #dates = [date.replace('\u202f', ' ') for date in dates]
     # converting to a pandas dataframe
-    x = pd.DataFrame({"messages": messages, "date": dates})
+    #x = pd.DataFrame({"messages": messages, "date": dates})
     # converting the "date" type
-    x["date"] = pd.to_datetime(x['date'], format='%d/%m/%y, %I:%M %p - ')
+    #x["date"] = pd.to_datetime(x['date'], format='%d/%m/%y, %I:%M %p - ')
     # converting time to 24-hour format and updating the "dates" column
-    x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    #x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    
+    pattern = '\d{2}\/\d{2}\/\d{2}, \d{1,2}:\d{2}\s(?:am|pm) - '
+    regex = r'\d{2}/\d{2}/\d{4}, \d{1,2}:\d{2}\s*[ap]m'
+
+    dates1 = re.findall(regex, data)
+    dates2 = re.findall(pattern, data)
+    regex = r'\d{2}/\d{2}/\d{4}, \d{1,2}:\d{2}\s*[ap]m - '
+    messages1 = re.split(regex, data)[1:]
+    messages2 = re.split(pattern, data)[1:]
+
+    dates = dates2
+    messages = messages2
+    if (len(dates2) == 0):
+        dates = dates1
+        messages = messages1
+    x = pd.DataFrame({"messages":messages, "date":dates})
+    #converting the "date" type
+    if (len(dates1)==0):
+        x["date"] = pd.to_datetime(x['date'], format='%d/%m/%y, %I:%M %p - ')
+        x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        x["date"] = pd.to_datetime(x['date'], format="%d/%m/%Y, %I:%M %p")
+        x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
+    
     # splitting the "messages" column into "user" and "message" columns
     x[['user', 'message']] = x['messages'].str.split(': ', 1, expand=True)
 

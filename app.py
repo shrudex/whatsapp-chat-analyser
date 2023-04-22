@@ -24,7 +24,8 @@ if uploadedFile is not None:
 
     # fetch unique users
     userList = dataFrame["user"].unique().tolist()
-    userList.remove("default")
+    if ("default" in userList):
+        userList.remove("default")
     userList.sort()
     userList.insert(0, "Overall")
     selectedUser = st.sidebar.selectbox("Show Analysis🤔 WRT", userList)
