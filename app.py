@@ -48,36 +48,89 @@ if uploadedFile is not None:
         with col4:
             st.header("Links Shared🔗")
             st.title(numURL)
-            
-        #monthly timeline
+
+        # monthly timeline
         st.title("Monthly Timeline⌚")
         timeline = helper.monthlyTimeline(selectedUser, dataFrame)
         plt.style.use('dark_background')
-        plt.figure(figsize=(12, 3)) 
+        plt.figure(figsize=(12, 3))
         plt.plot(timeline['time'], timeline['message'])
         plt.xticks(rotation='vertical')
         plt.title(f"{selectedUser}", color='yellow')
         st.pyplot(plt)
-        
-        #daily timeline
+
+        # daily timeline
         st.title("Daily Timeline📅")
-        dailyTimeline = helper.dailyTimeline (selectedUser, dataFrame)
+        dailyTimeline = helper.dailyTimeline(selectedUser, dataFrame)
         plt.style.use('dark_background')
-        plt.figure(figsize = (14, 3))
+        plt.figure(figsize=(14, 3))
         plt.plot(dailyTimeline['onlyDate'], dailyTimeline['message'])
         plt.xticks(rotation='vertical')
         plt.title('Daily Message Count', color='yellow')
         plt.xlabel('Date', color='white')
         plt.ylabel('Message Count', color='white')
         st.pyplot(plt)
-        
-        #activity map
-        st.title("Week Activity")
-        weekActivitySeries, weekActivity = helper.weekActivity (selectedUser, dataFrame)
-        fig = px.pie(weekActivity, values='message', names='dayName', hole=0.6, color_discrete_sequence=px.colors.qualitative.Dark2)
-        fig.update_layout(template='plotly_dark')
-        st.plotly_chart(fig)
 
+        # activity map
+        st.title("Week Activity📊")
+        col1, col2 = st.columns(2)
+        weekActivitySeries, weekActivity = helper.weekActivity(selectedUser, dataFrame)
+        weekActivity = weekActivity.sort_values('message')
+        days = weekActivity['dayName']
+        messages = weekActivity['message']
+        
+        with col2:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.pie(messages, labels=days, autopct='%1.1f%%', colors=plt.cm.Dark2.colors)
+            ax.axis('equal')
+            plt.style.use('dark_background')
+            st.pyplot(fig)
+            
+            
+        with col1:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.bar(days, messages)
+            ax.set_xlabel('Day of the Week', color="yellow")
+            ax.set_ylabel('Number of Messages', color='yellow')
+            plt.style.use('dark_background')
+            st.pyplot(fig)
+        
+        #------------------------------
+        
+        st.title("Month Activity📊")
+        col1, col2 = st.columns(2)
+        monthActivitySeries, monthActivity = helper.monthActivity(selectedUser, dataFrame)
+        monthActivity = monthActivity.sort_values('message')
+        month = monthActivity['monthName']
+        messages = monthActivity['message']
+        
+        with col2:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.pie(messages, labels=month, autopct='%1.1f%%', colors=plt.cm.Dark2.colors)
+            ax.axis('equal')
+            plt.style.use('dark_background')
+            st.pyplot(fig)
+            
+            
+        with col1:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.bar(month, messages)
+            ax.set_xlabel('Month of the Year', color="yellow")
+            ax.set_ylabel('Number of Messages', color='yellow')
+            plt.style.use('dark_background')
+            st.pyplot(fig)
+            
+        #hourly activity
+        st.title("Hour Activity⌛")
+        h1, h2 = helper.hourActivity(selectedUser, dataFrame)
+        
+        fig, ax = plt.subplots(figsize=(12, 3))
+        h1.unstack('dayName').plot(ax=ax)
+        ax.set_xlabel('Hour of the Day', color='yellow')
+        ax.set_ylabel('Number of Messages', color='yellow')
+        ax.set_title('Messages Sent by Hour of the Day', color='white')
+        plt.style.use('dark_background')
+        st.pyplot(fig)
 
 
         # finding busiest users in the group
@@ -104,11 +157,11 @@ if uploadedFile is not None:
                 st.dataframe(topChatterPercent)
 
         # most common words
-        
+
         mostCommon = helper.mostCommon(selectedUser, dataFrame)
         if (mostCommon.shape[0] != 0):
             st.header("Top Words Used🥇")
-        
+
             col1, col2 = st.columns(2)
             with col1:
                 fig, ax = plt.subplots()
@@ -117,24 +170,25 @@ if uploadedFile is not None:
                 ax.barh(mostCommon['Message'], mostCommon['Frequency'])
                 plt.xticks(rotation="vertical")
                 st.pyplot(fig)
-            
+
             with col2:
                 st.dataframe(mostCommon)
-            
+
         # emoji analysis
         emoji_df = helper.mostEmoji(selectedUser, dataFrame)
-        if (emoji_df.shape[0]!=0):
+        if (emoji_df.shape[0] != 0):
             st.title("Emoji Analysis😳")
 
-            col1,col2 = st.columns(2)
+            col1, col2 = st.columns(2)
 
             with col1:
                 st.dataframe(emoji_df)
             with col2:
-                fig,ax = plt.subplots()
-                color =  ['#FFC107', '#2196F3', '#4CAF50', '#F44336', '#9C27B0']
+                fig, ax = plt.subplots()
+                color = ['#FFC107', '#2196F3', '#4CAF50', '#F44336', '#9C27B0']
 
-                ax.pie(emoji_df['Count'].head(),labels=emoji_df['Emoji'].head(),autopct="%0.2f", colors=color)
+                ax.pie(emoji_df['Count'].head(), labels=emoji_df['Emoji'].head(
+                ), autopct="%0.2f", colors=color)
                 ax.set_title("Emoji Distribution", color='yellow')
                 fig.set_facecolor('#121212')
                 st.pyplot(fig)

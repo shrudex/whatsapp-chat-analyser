@@ -58,4 +58,5 @@ def preprocess(data):
         x["date"], format="%Y-%m-%d %H:%M:%S").dt.minute
     
     x['dayName'] = pd.to_datetime(x['date'], format="%Y-%m-%d %H:%M:%S").dt.day_name()
+    x['monthName'] = pd.to_datetime(x['date'], format="%Y-%m-%d %H:%M:%S").dt.month_name()
     return x
