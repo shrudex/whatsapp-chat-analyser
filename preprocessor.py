@@ -61,7 +61,8 @@ def preprocess(data):
         x["date"] = x["date"].dt.strftime('%Y-%m-%d %H:%M:%S')
     
     # splitting the "messages" column into "user" and "message" columns
-    x[['user', 'message']] = x['messages'].str.split(': ', 1, expand=True)
+    x[['user', 'message']] = x['messages'].str.split(': ', n=1, expand=True)
+
 
     # setting "default" user for messages without a sender
     x.loc[x['messages'].str.find(':') == -1, 'user'] = "default"
