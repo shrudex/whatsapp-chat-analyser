@@ -193,27 +193,7 @@ if uploadedFile is not None:
             with col2:
                 st.dataframe(topChatterPercent)
                 
-        #reply time analysis
-        st.header("Reply Time Analysis⏩")
-        timeDifference, timeSelected = helper.replyTime(selectedUser, dataFrame)
-        if (selectedUser!='Overall'):
-            st.write("Average Reply Time by", selectedUser, "is", timeSelected)
-        else:
-            col1, col2 = st.columns(2)
-            with col1:
-                fig, ax = plt.subplots(figsize=(8, 6))
-                ax.bar(timeDifference['user'], timeDifference['replyTime'].dt.seconds)
-                ax.set_xlabel('Participant', color='yellow')
-                ax.set_ylabel('Average Reply Time (Seconds)', color='yellow')
-                ax.set_title('')
-                st.pyplot(plt)
-            with col2:
-                fig, ax = plt.subplots(figsize=(8, 6))
-                ax.pie(timeDifference['replyTime'], labels=timeDifference['user'], autopct='%1.1f%%', colors=plt.cm.Dark2.colors)
-                ax.axis('equal')
-                plt.style.use('dark_background')
-                ax.set_title('')
-                st.pyplot(fig)
+        
         
 
    
@@ -262,4 +242,26 @@ if uploadedFile is not None:
             if messageExtract.shape[0]>0:
                 st.dataframe(messageExtract, width=1400)
             else:
-                st.write("No conversation(s) on", inputDate)            
+                st.write("No conversation(s) on", inputDate)  
+
+        #reply time analysis
+        st.header("Reply Time Analysis⏩")
+        timeDifference, timeSelected = helper.replyTime(selectedUser, dataFrame)
+        if (selectedUser!='Overall'):
+            st.write("Average Reply Time by", selectedUser, "is", timeSelected)
+        else:
+            col1, col2 = st.columns(2)
+            with col1:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                ax.bar(timeDifference['user'], timeDifference['replyTime'].dt.seconds)
+                ax.set_xlabel('Participant', color='yellow')
+                ax.set_ylabel('Average Reply Time (Seconds)', color='yellow')
+                ax.set_title('')
+                st.pyplot(plt)
+            with col2:
+                fig, ax = plt.subplots(figsize=(8, 6))
+                ax.pie(timeDifference['replyTime'], labels=timeDifference['user'], autopct='%1.1f%%', colors=plt.cm.Dark2.colors)
+                ax.axis('equal')
+                plt.style.use('dark_background')
+                ax.set_title('')
+                st.pyplot(fig)
